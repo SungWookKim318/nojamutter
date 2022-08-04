@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:infinity/ViewModels/notification_viewmodel.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -27,6 +28,8 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void _pressPush() {
+    NotificationViewModel viewModel = NotificationViewModel();
+    viewModel.createNewNotifi();
     debugPrint("press Push button");
   }
 }
