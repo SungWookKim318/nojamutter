@@ -25,7 +25,7 @@ class NotificationManager with WidgetsBindingObserver {
     }
 
     const androidSetting = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iOSSetting = IOSInitializationSettings(
+    const iOSSetting = DarwinInitializationSettings(
         requestSoundPermission: true,
         requestBadgePermission: true,
         requestAlertPermission: true);
@@ -35,8 +35,9 @@ class NotificationManager with WidgetsBindingObserver {
   }
 
   void showNotifi() async {
-    var androidDetail = AndroidNotificationDetails("channelId", "channelName");
-    var iosDetail = IOSNotificationDetails();
+    var androidDetail =
+        const AndroidNotificationDetails("channelId", "channelName");
+    var iosDetail = const DarwinNotificationDetails();
     var details = NotificationDetails(android: androidDetail, iOS: iosDetail);
     if (_isInit != true) {
       return;

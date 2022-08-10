@@ -11,16 +11,6 @@ void main() async {
 
 final plugin = FlutterLocalNotificationsPlugin();
 
-void _setupNotifi() async {
-  const androidSetting = AndroidInitializationSettings('@mipmap/ic_launcher');
-  const iOSSetting = IOSInitializationSettings(
-      requestSoundPermission: true,
-      requestBadgePermission: true,
-      requestAlertPermission: true);
-  await plugin.initialize(
-      const InitializationSettings(android: androidSetting, iOS: iOSSetting));
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
