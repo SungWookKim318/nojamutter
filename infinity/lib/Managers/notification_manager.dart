@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:infinity/main.dart';
@@ -15,7 +17,7 @@ class NotificationManager with WidgetsBindingObserver {
 
   bool _isInit = false;
   bool get isInit => _isInit;
-  var _curruntId = 0;
+  static var _curruntId = 0;
   NotificationManager._internal();
 
   void setup() async {
@@ -24,14 +26,49 @@ class NotificationManager with WidgetsBindingObserver {
       return;
     }
 
-    const androidSetting = AndroidInitializationSettings('@mipmap/ic_launcher');
+    // const androidSetting = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSetting = AndroidInitializationSettings('@mipmap/ic_launcher',
+        onDidReceiveLocalNotification: onDidReceiveAndroidCallback);
     const iOSSetting = DarwinInitializationSettings(
         requestSoundPermission: true,
         requestBadgePermission: true,
-        requestAlertPermission: true);
+        requestAlertPermission: true,
+        onDidReceiveLocalNotification: onDidReceiveAppleCallback);
     await _plugin.initialize(
-        const InitializationSettings(android: androidSetting, iOS: iOSSetting));
+        const InitializationSettings(android: androidSetting, iOS: iOSSetting),
+        onDidReceiveBackgroundNotificationResponse: receiveBackgroundCallback,
+        onDidReceiveNotificationResponse: receiveCallback);
     _isInit = true;
+  }
+
+  static void receiveCallback(NotificationResponse details) {
+    debugPrint("receiveCallback was Called");
+  }
+
+  static void receiveBackgroundCallback(NotificationResponse details) {
+    debugPrint("receiveBackgroundCallback was Called");
+  }
+
+  static void onDidReceiveAndroidCallback(
+      int id, String? title, String? body, String? payload) {
+    debugPrint("onDidReceiveAndroidCallback was Called");
+    if (_curruntId < 5) {
+      debugPrint("request new local notification");
+      NotificationManager().showNotifi();
+    } else {
+      debugPrint("too many request. escape function");
+    }
+  }
+
+  static void onDidReceiveAppleCallback(
+      int id, String? title, String? body, String? payload) {
+    debugPrint("onDidReceiveAppleCallback was Called");
+    if (_curruntId < 5) {
+      debugPrint("request new local notification");
+      NotificationManager().showNotifi();
+    } else {
+      debugPrint("too many request. escape function");
+    }
   }
 
   void showNotifi() async {
@@ -48,22 +85,17 @@ class NotificationManager with WidgetsBindingObserver {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.deleteNotificationChannelGroup('id');
     await _plugin.zonedSchedule(_curruntId, "test Title - $_curruntId",
-        "test test test test", _setNotiTime(), details,
+        "test test test test", _requestNotifiacationTime(), details,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
         androidAllowWhileIdle: true);
     _curruntId += 1;
   }
 
-  tz.TZDateTime _setNotiTime() {
+  tz.TZDateTime _requestNotifiacationTime({int seconds = 10}) {
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
 
-    final now = tz.TZDateTime.now(tz.local);
-    // var scheduledDate =
-    //     tz.TZDateTime(tz.local, now.year, now.month, now.day, 10, 0);
-
-    // return scheduledDate;
-    return tz.TZDateTime.now(tz.local).add(Duration(seconds: 10));
+    return tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds));
   }
 }
